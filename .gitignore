@@ -1,0 +1,82 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.local
+
+# Environment
+.env
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Large data files - don't push to GitHub
+data/
+*.csv
+*.dat
+*.sql
+*.xlsx
+*.xls
+cloud_sql_proxy*.exe
+cloud-sql-proxy*.exe
+*.zip
+suburb-intel-extension.zip
+
+# GCP deployment files
+Dockerfile*
+cloudbuild*.yaml
+app.yaml
+deploy*.ps1
+deploy*.sh
+*.log
+*.html
+build-output.txt
+
+# Old scripts not needed for deployment
+scripts/import-csv-to-supabase.ts
+scripts/reconcile-subscriptions.ts
+scripts/refresh-all-suburbs-ai.ts
+scripts/fetch-ai-property-data.ts
+scripts/fetch-smart-property-data.ts
+scripts/fetch-suburb-on-demand.ts
+scripts/populate-vector-embeddings.js
+scripts/populate-suburbs.ts
+
+# Misc large/unnecessary files
+*.exe
+New folder/
+extension/
+etl/

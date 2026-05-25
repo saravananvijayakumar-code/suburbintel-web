@@ -1,0 +1,100 @@
+{
+  "name": "suburb-intel-web",
+  "version": "1.0.0",
+  "description": "Australian Property Intelligence Platform - free suburb data and analytics",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smartcalculatorhubs/suburb-intel-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/smartcalculatorhubs/suburb-intel-web/issues"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "test": "playwright test",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:webkit": "playwright test --project=webkit",
+    "test:e2e:mobile": "playwright test --project='Mobile Chrome'",
+    "test:e2e:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:ui": "playwright test --ui",
+    "etl:abs": "npx tsx scripts/etl/etl-abs-census.ts",
+    "etl:nsw": "npx tsx scripts/etl/etl-nsw-valuer-general.ts",
+    "etl:vic": "npx tsx scripts/etl/etl-vic-property.ts",
+    "etl:infrastructure": "npx tsx scripts/etl/etl-infrastructure.ts",
+    "etl:approvals": "npx tsx scripts/etl/etl-development-approvals.ts"
+  },
+  "keywords": [
+    "property",
+    "real-estate",
+    "australia",
+    "property-intelligence",
+    "investment",
+    "suburb-analysis",
+    "property-valuation"
+  ],
+  "author": {
+    "name": "Smart Calculator Hubs",
+    "email": "saravananvijayakumar@quantumleapventures.com.au"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@react-pdf/renderer": "^4.3.1",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.1.2",
+    "csv-parse": "^6.1.0",
+    "csv-parser": "^3.2.0",
+    "framer-motion": "^12.23.25",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.553.0",
+    "next": "^15.0.3",
+    "next-pwa": "^5.6.0",
+    "nodemailer": "^7.0.12",
+    "papaparse": "^5.5.3",
+    "pg": "^8.13.1",
+    "postcss": "^8.5.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.6.0",
+    "resend": "^6.4.2",
+    "sanitize-html": "^2.17.0",
+    "tailwindcss": "^4.1.16",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.11.10",
+    "@types/sanitize-html": "^2.16.0",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.0.7",
+    "prisma": "^6.19.0"
+  }
+}

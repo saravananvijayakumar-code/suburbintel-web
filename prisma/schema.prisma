@@ -1,0 +1,1243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model accounts {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  users             users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model activities {
+  id        String   @id
+  userId    String
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model ai_report_usage {
+  id        String   @id
+  userId    String   @unique
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([userId, resetAt])
+}
+
+model alerts {
+  id          String    @id
+  userId      String
+  type        String
+  suburb      String?
+  state       String?
+  condition   Json?
+  triggered   Boolean   @default(false)
+  triggeredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  users       users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  suburbs     suburbs?  @relation(fields: [suburb], references: [id], onDelete: Cascade)
+
+  @@index([userId, triggered])
+}
+
+model api_keys {
+  id           String    @id
+  userId       String
+  key          String    @unique
+  name         String?
+  requestCount Int       @default(0)
+  monthlyLimit Int       @default(1000)
+  lastResetAt  DateTime  @default(now())
+  active       Boolean   @default(true)
+  lastUsedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  expiresAt    DateTime?
+  users        users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([key])
+  @@index([userId])
+}
+
+model comparable_sales {
+  id           String   @id
+  suburbId     String
+  address      String
+  salePrice    Float
+  saleDate     DateTime
+  propertyType String?
+  bedrooms     Int?
+  bathrooms    Int?
+  landSize     Float?
+  buildingSize Float?
+  daysOnMarket Int?
+  source       String?
+  createdAt    DateTime @default(now())
+  suburbs      suburbs  @relation(fields: [suburbId], references: [id], onDelete: Cascade)
+
+  @@index([suburbId, saleDate])
+}
+
+model cron_job_runs {
+  id          String    @id
+  jobName     String
+  status      String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  duration    Int?
+  result      Json?
+  error       String?
+
+  @@index([jobName, startedAt])
+}
+
+model newsletter_subscribers {
+  id              String    @id
+  email           String    @unique
+  status          String    @default("active")
+  source          String?
+  subscribedAt    DateTime  @default(now())
+  unsubscribedAt  DateTime?
+  resubscribedAt  DateTime?
+  ipAddress       String?
+  userAgent       String?
+  preferences     Json?
+  lastEmailSentAt DateTime?
+  emailsSentCount Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+
+  @@index([email])
+  @@index([status])
+  @@index([subscribedAt])
+}
+
+model portfolios {
+  id            String   @id
+  userId        String
+  name          String   @default("My Portfolio")
+  address       String
+  suburb        String
+  state         String
+  postcode      String
+  purchasePrice Float
+  purchaseDate  DateTime
+  currentValue  Float?
+  propertyType  String?
+  bedrooms      Int?
+  bathrooms     Int?
+  loanAmount    Float?
+  weeklyRent    Float?
+  expenses      Float?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  users         users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model price_history {
+  id          String   @id
+  suburbId    String
+  medianPrice Float
+  weeklyRent  Float?
+  quarter     String
+  month       DateTime
+  createdAt   DateTime @default(now())
+  suburbs     suburbs  @relation(fields: [suburbId], references: [id], onDelete: Cascade)
+
+  @@index([suburbId, month])
+}
+
+model price_predictions {
+  id           String   @id
+  suburbId     String   @unique
+  suburbName   String
+  state        String
+  currentPrice Float
+  predicted3m  Float?
+  predicted6m  Float?
+  predicted12m Float?
+  predicted24m Float?
+  confidence   Float?
+  trend        String?
+  factors      Json?
+  lastUpdated  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  suburbs      suburbs  @relation(fields: [suburbId], references: [id], onDelete: Cascade)
+
+  @@index([suburbId])
+}
+
+model properties {
+  id             String    @id
+  suburbId       String
+  address        String?
+  propertyType   String?
+  bedrooms       Int?
+  bathrooms      Int?
+  parking        Int?
+  landSize       Float?
+  price          Float?
+  estimatedValue Float?
+  listingDate    DateTime?
+  saleDate       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  suburbs        suburbs   @relation(fields: [suburbId], references: [id], onDelete: Cascade)
+
+  @@index([suburbId])
+}
+
+model property_analyses {
+  id           String   @id
+  userId       String
+  suburbName   String
+  state        String
+  postcode     String
+  analysisData Json
+  reportType   String   @default("basic")
+  createdAt    DateTime @default(now())
+  users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model property_news {
+  id          String   @id
+  title       String
+  description String
+  content     String
+  source      String
+  sourceUrl   String?
+  publishedAt DateTime
+  category    String
+  state       String?
+  suburbs     String[]
+  impactType  String
+  impactScore Int      @default(0)
+  tags        String[]
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([category])
+  @@index([impactScore])
+  @@index([publishedAt])
+  @@index([state])
+}
+
+model rag_conversations {
+  id           String         @id
+  userId       String?
+  title        String?
+  context      Json?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  rag_messages rag_messages[]
+
+  @@index([userId])
+}
+
+model rag_messages {
+  id                String            @id
+  conversationId    String
+  role              String
+  content           String
+  tokensUsed        Int?
+  sources           Json?
+  queryType         String?
+  createdAt         DateTime          @default(now())
+  rag_conversations rag_conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model rate_limits {
+  id           String   @id
+  identifier   String
+  endpoint     String
+  requestCount Int      @default(1)
+  windowStart  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+
+  @@unique([identifier, endpoint])
+  @@index([identifier])
+  @@index([windowStart])
+}
+
+model saved_searches {
+  id           String    @id
+  userId       String
+  name         String?
+  query        String
+  filters      Json?
+  alertEnabled Boolean   @default(true)
+  lastAlertAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  users        users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model sessions {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model subscriptions {
+  id                   String    @id
+  userId               String    @unique
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  status               String    @default("inactive")
+  plan                 String    @default("free")
+  monthlyLimit         Int       @default(3)
+  trialEndsAt          DateTime?
+  trialReminderSent    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime
+  canceledAt           DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  currentPeriodEnd     DateTime?
+  currentPeriodStart   DateTime?
+  trialEnd             DateTime?
+  cancelAt             DateTime?
+  lastResetAt          DateTime  @default(now())
+  usageCount           Int       @default(0)
+  users                users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model licenses {
+  id                   String   @id
+  email                String   @unique
+  userId               String?  @unique
+  status               String   @default("inactive")
+  plan                 String   @default("pro_monthly")
+  expiresAt            DateTime?
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  cancelAtPeriodEnd    Boolean  @default(false)
+  canceledAt           DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+
+  users users? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([expiresAt])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model processedWebhookEvents {
+  id            String   @id @default(uuid())
+  stripeEventId String   @unique
+  eventType     String
+  processedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([stripeEventId])
+  @@index([eventType])
+  @@index([processedAt])
+}
+
+model suburbs {
+  id                           String              @id
+  name                         String
+  state                        String
+  postcode                     String
+  medianPrice                  Float?
+  weeklyRent                   Float?
+  rentalYield                  Float?
+  growth3m                     Float?
+  growth6m                     Float?
+  growth12m                    Float?
+  growth5y                     Float?
+  priceGrowth10y               Float?
+  priceGrowth3y                Float?
+  priceVolatilityScore         Float?
+  medianUnitPrice              Float?
+  medianHouseRent              Float?
+  medianUnitRent               Float?
+  grossYieldHouse              Float?
+  grossYieldUnit               Float?
+  rentalGrowth12m              Float?
+  rentalRiskScore              Float?
+  listingsCurrent              Int?
+  listingsTrend3m              String?
+  stockOnMarketPct             Float?
+  salesVolumeMonthly           Int?
+  salesVolumeTrend3m           String?
+  demandScore                  Float?
+  dwellingApprovalsYTD         Int?
+  apartmentPipeline            Int?
+  landSubdivisionActivity      Int?
+  oversupplyRiskScore          Float?
+  population                   Int?
+  medianAge                    Float?
+  medianIncome                 Float?
+  populationGrowthRate         Float?
+  renterPercentage             Float?
+  ownerOccupierPercentage      Float?
+  ageDistribution              Json?
+  educationLevelIndex          Float?
+  medianHouseholdSize          Float?
+  unemploymentRate             Float?
+  crimeRateIndex               Float?
+  schoolQualityScore           Float?
+  publicTransportScore         Float?
+  greenspaceScore              Float?
+  distanceToCBD                Float?
+  futureInfrastructureProjects String[]
+  walkabilityScore             Float?
+  bikeabilityScore             Float?
+  cafesAndRestaurants          Int?
+  healthcareFacilities         Int?
+  childcareCentres             Int?
+  commercialPrecinct           String?
+  developmentActivity          String?
+  zoningCode                   String?
+  heritageOverlay              Boolean             @default(false)
+  mortgageRepaymentEstimate    Float?
+  priceToIncomeRatio           Float?
+  timeToSaveDepositYears       Float?
+  rentVsBuyRecommendation      String?
+  investmentScore              Float?
+  growthScore                  Float?
+  affordabilityScore           Float?
+  lifestyleScore               Float?
+  suburbGrowthScore            Float?
+  suburbRiskScore              Float?
+  suburbOpportunityScore       Float?
+  overallSmartPropertyScore    Float?
+  aiShortSummary               String?
+  aiInvestmentExplanation      String?
+  aiRiskWarning                String?
+  aiFuturePrediction           String?
+  aiComparableSuburbs          String[]
+  aiBuyerPersona               String?
+  aiInvestmentStrategy         String?
+  lastUpdated                  DateTime            @default(now())
+  dataSource                   String              @default("Generated Seed Data")
+  createdAt                    DateTime            @default(now())
+  updatedAt                    DateTime
+  dataQuality                  String              @default("low")
+  lastApiCallDate              DateTime?
+  updateFrequency              String              @default("quarterly")
+  airQuality                   String?
+  auctionClearance             Float?
+  averageHouseholdSize         Float?
+  bachelorDegree               Float?
+  busStops                     Int?
+  bushfireRisk                 String?
+  cbdDistanceKm                Float?
+  councilName                  String?
+  councilRates                 Float?
+  crimeRate                    String?
+  crimeScore                   Float?
+  daysOnMarket                 Int?
+  employmentRate               Float?
+  familiesPercent              Float?
+  floodRisk                    String?
+  gyms                         Int?
+  hospitals                    Int?
+  nbnAvailability              String?
+  parks                        Int?
+  plannedInfra                 String?
+  primarySchools               Int?
+  restaurants                  Int?
+  secondarySchools             Int?
+  shoppingCentres              Int?
+  trainStations                Int?
+  transportScore               Float?
+  universities                 Int?
+  vacancyRate                  Float?
+  internetConnectivity         String?
+  comparable_sales             comparable_sales[]
+  price_history                price_history[]
+  price_predictions            price_predictions?
+  properties                   properties[]
+  watchlists                   watchlists[]
+  property_listings            property_listings[] @relation("PropertySuburbIntel")
+  alerts                       alerts[]
+
+  @@unique([name, state, postcode])
+  @@index([dataQuality])
+  @@index([dataSource])
+  @@index([demandScore])
+  @@index([growth12m])
+  @@index([medianPrice])
+  @@index([overallSmartPropertyScore])
+  @@index([oversupplyRiskScore])
+  @@index([priceVolatilityScore])
+  @@index([state])
+  @@index([suburbGrowthScore])
+  @@index([suburbOpportunityScore])
+  @@index([suburbRiskScore])
+}
+
+model users {
+  id               String    @id
+  email            String    @unique
+  emailVerified    DateTime?
+  name             String?
+  image            String?
+  password         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
+
+  // Relations
+  accounts          accounts[]
+  activities        activities[]
+  alerts            alerts[]
+  api_keys          api_keys[]
+  portfolios        portfolios[]
+  property_analyses property_analyses[]
+  property_listings property_listings[]
+  saved_searches    saved_searches[]
+  sessions          sessions[]
+  subscriptions     subscriptions?
+  licenses          licenses?
+  watchlists        watchlists[]
+
+  // Marketplace relations
+  agent_profile  agent_profiles?
+  inquiries      listing_inquiries[]
+  data_purchases data_marketplace_purchases[]
+  audit_logs     audit_logs[]
+}
+
+model vector_embeddings {
+  id           String   @id
+  content      String
+  embedding    Json
+  documentType String
+  suburbId     String?
+  suburbName   String?
+  state        String?
+  postcode     String?
+  source       String
+  year         Int?
+  quarter      String?
+  category     String?
+  chunkIndex   Int?
+  totalChunks  Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+
+  @@index([documentType])
+  @@index([source])
+  @@index([state])
+  @@index([suburbId])
+}
+
+model verification_tokens {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model watchlists {
+  id             String    @id
+  userId         String
+  suburbId       String
+  suburbName     String
+  state          String
+  postcode       String
+  emailAlerts    Boolean   @default(true)
+  priceAlerts    Boolean   @default(true)
+  weeklyDigest   Boolean   @default(true)
+  lastNotifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  suburbs        suburbs   @relation(fields: [suburbId], references: [id], onDelete: Cascade)
+  users          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, suburbId])
+  @@index([suburbId])
+  @@index([userId])
+}
+
+// =============================================================================
+// SUPPORT TICKET SYSTEM - Enterprise Grade
+// =============================================================================
+
+enum SupportCategory {
+  GENERAL
+  BILLING
+  TECHNICAL
+  ACCOUNT
+  DATA_QUALITY
+  FEATURE_REQUEST
+  BUG_REPORT
+  SUBSCRIPTION
+  API
+  OTHER
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_CUSTOMER
+  WAITING_ON_THIRD_PARTY
+  RESOLVED
+  CLOSED
+  REOPENED
+}
+
+enum MessageSender {
+  USER
+  AGENT
+  SYSTEM
+}
+
+model SupportTicket {
+  id              String             @id @default(cuid())
+  ticketNumber    String             @unique
+  userId          String
+  userEmail       String
+  userName        String?
+  subject         String
+  description     String
+  category        SupportCategory    @default(GENERAL)
+  priority        TicketPriority     @default(MEDIUM)
+  status          TicketStatus       @default(OPEN)
+  assignedToId    String?
+  assignedToName  String?
+  tags            String[]           @default([])
+  metadata        Json?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  firstResponseAt DateTime?
+  slaDeadline     DateTime?
+  slaBreach       Boolean            @default(false)
+  messages        TicketMessage[]
+  attachments     TicketAttachment[]
+  history         TicketHistory[]
+
+  @@index([userId])
+  @@index([userEmail])
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([assignedToId])
+  @@index([createdAt])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id          String        @id @default(cuid())
+  ticketId    String
+  senderId    String
+  senderName  String
+  senderEmail String
+  senderRole  MessageSender @default(USER)
+  content     String
+  isInternal  Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  editedAt    DateTime?
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+model TicketAttachment {
+  id         String        @id @default(cuid())
+  ticketId   String
+  fileName   String
+  fileType   String
+  fileSize   Int
+  fileUrl    String
+  uploadedBy String
+  createdAt  DateTime      @default(now())
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_attachments")
+}
+
+model TicketHistory {
+  id              String        @id @default(cuid())
+  ticketId        String
+  action          String
+  oldValue        String?
+  newValue        String?
+  performedBy     String
+  performedByName String?
+  createdAt       DateTime      @default(now())
+  ticket          SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_history")
+}
+
+model SupportAgent {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  email          String
+  name           String
+  role           String   @default("agent")
+  department     String?
+  isActive       Boolean  @default(true)
+  maxTickets     Int      @default(20)
+  currentTickets Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("support_agents")
+}
+
+model CannedResponse {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  category   String?
+  tags       String[] @default([])
+  createdBy  String
+  isActive   Boolean  @default(true)
+  usageCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("canned_responses")
+}
+
+model property_listings {
+  id         String  @id @default(cuid())
+  agentId    String
+  agentName  String
+  agentEmail String
+  agentPhone String?
+  agencyName String?
+
+  // Property Details
+  address       String? // Optional - can be hidden for privacy
+  streetAddress String? // Full street address
+  suburb        String
+  state         String
+  postcode      String
+  propertyType  String // House, Apartment, Townhouse, Land, etc.
+
+  // Suburb Intelligence Link
+  suburbId   String?
+  suburbData suburbs? @relation(fields: [suburbId], references: [id], name: "PropertySuburbIntel")
+
+  // Listing Details
+  listingType  String // Sale, Rent, Sold
+  price        Int? // For sale price
+  priceDisplay String? // e.g., "Offers over $800,000", "Contact Agent"
+  weeklyRent   Int? // For rental
+  listedAt     DateTime? // When property was first listed
+  soldAt       DateTime? // When property was sold (for Sold listings)
+
+  // Property Features
+  bedrooms     Int?
+  bathrooms    Int?
+  carSpaces    Int?
+  landSize     Int? // in sqm
+  buildingSize Int? // in sqm
+
+  // Description
+  title       String
+  description String   @db.Text
+  features    String[] @default([])
+
+  // Media - now using listing_media table
+  images      String[]        @default([]) // Legacy field
+  floorPlan   String?
+  virtualTour String?
+  media       listing_media[]
+
+  // Compliance
+  contentOwnership Boolean @default(false) // Agent confirmed ownership
+  dataSource       String  @default("agent_submitted") // agent_submitted, licensed_api
+  sourceProvider   String? // If licensed_api, provider name
+  sourceUrl        String? // Original listing URL if applicable
+
+  // Dates
+  availableFrom   DateTime?
+  inspectionTimes Json? // Array of inspection times
+
+  // Status & Moderation
+  status           String    @default("draft") // draft, active, pending_review, sold, rented, withdrawn, suspended
+  isPublished      Boolean   @default(false)
+  moderationStatus String    @default("pending") // pending, approved, rejected
+  moderationNotes  String?   @db.Text
+  moderatedAt      DateTime?
+  moderatedBy      String? // Admin user ID
+
+  // Featured/Sponsored
+  isFeatured    Boolean   @default(false)
+  featuredUntil DateTime?
+
+  // Metadata
+  views     Int @default(0)
+  inquiries Int @default(0)
+  shares    Int @default(0)
+  saves     Int @default(0)
+
+  // SEO
+  slug            String? @unique
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  agent             users               @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  listing_inquiries listing_inquiries[]
+  reports           listing_reports[]
+
+  @@index([suburb, state, status])
+  @@index([agentId, status])
+  @@index([listingType, status, isPublished])
+  @@index([suburbId])
+  @@index([slug])
+  @@index([isFeatured, featuredUntil])
+  @@index([moderationStatus])
+  @@map("property_listings")
+}
+
+model listing_inquiries {
+  id        String            @id @default(cuid())
+  listingId String
+  listing   property_listings @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  userId    String? // Optional - logged in user
+  user      users?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  phone     String?
+  message   String            @db.Text
+  status    String            @default("new") // new, contacted, converted, closed
+  ipAddress String? // For rate limiting
+  userAgent String? // For security
+  createdAt DateTime          @default(now())
+
+  @@index([listingId, status])
+  @@index([userId])
+  @@index([email])
+  @@map("listing_inquiries")
+}
+
+// ===================================
+// AGENT VERIFICATION & MARKETPLACE
+// ===================================
+
+model agent_profiles {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Agent Details
+  agencyName    String
+  licenseNumber String // Real estate license number
+  state         String // State where licensed
+  abn           String? // Australian Business Number
+  phoneNumber   String
+  mobileNumber  String?
+  officeAddress String?
+  websiteUrl    String?
+
+  // Verification
+  verificationStatus String    @default("pending") // pending, verified, suspended, rejected
+  verificationNotes  String?   @db.Text
+  verifiedAt         DateTime?
+  verifiedBy         String? // Admin user ID
+
+  // Documents (stored in cloud storage)
+  licenseDocumentUrl  String?
+  identityDocumentUrl String?
+
+  // Profile
+  bio             String?  @db.Text
+  specializations String[] @default([]) // e.g., ["Residential", "Commercial"]
+  areasServed     String[] @default([]) // Suburbs they serve
+  profileImageUrl String?
+
+  // Stats
+  activeListings  Int    @default(0)
+  totalListings   Int    @default(0)
+  totalInquiries  Int    @default(0)
+  responseRate    Float? // Percentage
+  avgResponseTime Int? // In hours
+
+  // Subscription
+  subscriptionTier   String @default("basic") // basic, premium, enterprise
+  subscriptionStatus String @default("active") // active, suspended, cancelled
+
+  // Settings
+  autoPublish        Boolean @default(false)
+  emailNotifications Boolean @default(true)
+  smsNotifications   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  featuredPlacements featured_placements[]
+  reportedListings   listing_reports[]
+
+  @@index([verificationStatus])
+  @@index([state])
+  @@index([subscriptionTier])
+  @@map("agent_profiles")
+}
+
+model listing_media {
+  id           String  @id @default(cuid())
+  listingId    String
+  type         String // image, floorplan, video, virtual_tour
+  url          String // Signed URL from cloud storage
+  thumbnailUrl String?
+  caption      String?
+  displayOrder Int     @default(0)
+  width        Int?
+  height       Int?
+  fileSize     Int? // In bytes
+  mimeType     String?
+
+  // Rights & Compliance
+  rightsConfirmed Boolean @default(false) // Agent confirmed ownership
+  source          String? // "agent_upload", "licensed_api", "stock_photo"
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  propertyListings    property_listings? @relation(fields: [property_listingsId], references: [id])
+  property_listingsId String?
+
+  @@index([listingId, displayOrder])
+  @@map("listing_media")
+}
+
+model listing_reports {
+  id         String          @id @default(cuid())
+  listingId  String
+  reportedBy String? // User ID or null for anonymous
+  agentId    String? // For admin tracking
+  agent      agent_profiles? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  reason  String // spam, inappropriate, copyright, misleading, other
+  details String @db.Text
+  status  String @default("pending") // pending, reviewed, actioned, dismissed
+
+  // Admin action
+  reviewedBy  String? // Admin user ID
+  reviewedAt  DateTime?
+  actionTaken String? // removed, warned, suspended, none
+  adminNotes  String?   @db.Text
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  propertyListings    property_listings? @relation(fields: [property_listingsId], references: [id])
+  property_listingsId String?
+
+  @@index([listingId, status])
+  @@index([status, createdAt])
+  @@map("listing_reports")
+}
+
+model featured_placements {
+  id        String         @id @default(cuid())
+  listingId String
+  agentId   String
+  agent     agent_profiles @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  placementType String // featured_listing, sponsored_suburb, homepage_banner
+  suburb        String? // For suburb-specific sponsorship
+  state         String?
+
+  // Billing
+  stripePaymentIntentId String?
+  amount                Int // Amount in cents
+  currency              String  @default("AUD")
+
+  // Schedule
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+
+  // Analytics
+  impressions Int @default(0)
+  clicks      Int @default(0)
+  inquiries   Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([placementType, isActive, startDate, endDate])
+  @@index([agentId])
+  @@index([suburb, state, isActive])
+  @@map("featured_placements")
+}
+
+// ===================================
+// DATA MARKETPLACE
+// ===================================
+
+model dataset_sources {
+  id          String @id @default(cuid())
+  name        String @unique // e.g., "ABS_Census_2021", "CoreLogic_RP_Data"
+  displayName String // User-friendly name
+  description String @db.Text
+
+  // Legal
+  provider            String // Organization name
+  licenseType         String // commercial, open_data, proprietary, creative_commons
+  licenseUrl          String?
+  termsUrl            String?
+  attributionRequired Boolean @default(true)
+  attributionText     String?
+
+  // API/Feed details
+  apiEndpoint     String?
+  apiKeyRequired  Boolean @default(false)
+  feedUrl         String?
+  updateFrequency String? // daily, weekly, monthly, quarterly
+
+  // Status
+  isActive      Boolean   @default(true)
+  lastFetchedAt DateTime?
+  nextFetchAt   DateTime?
+
+  // Metadata
+  coverage  String[] @default([]) // States/regions covered
+  dataTypes String[] @default([]) // price, demographic, risk, etc.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  provenance data_provenance[]
+
+  @@map("dataset_sources")
+}
+
+model data_provenance {
+  id String @id @default(cuid())
+
+  // What data
+  entityType  String // suburb, property, price_history, demographic
+  entityId    String // ID of the entity
+  metricName  String // median_price, population, crime_rate, etc.
+  metricValue String? // Stored as string for flexibility
+
+  // Source tracking
+  sourceId String
+  source   dataset_sources @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  // Quality metrics
+  confidence  Float? // 0-1 score
+  method      String? // calculation, api, user_submitted, estimated
+  retrievedAt DateTime
+  validUntil  DateTime?
+
+  // Versioning
+  version    Int     @default(1)
+  supersedes String? // Previous provenance record ID
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId, metricName])
+  @@index([sourceId])
+  @@index([retrievedAt])
+  @@map("data_provenance")
+}
+
+model data_marketplace_products {
+  id String @id @default(cuid())
+
+  // Product details
+  name        String
+  slug        String @unique
+  description String @db.Text
+  productType String // suburb_pack, api_access, pdf_report, monitoring
+
+  // Pricing
+  stripePriceId String? // For one-time or subscription
+  price         Int // In cents
+  currency      String  @default("AUD")
+  billingPeriod String? // one_time, monthly, annual
+
+  // What's included
+  features      String[] @default([])
+  dataTypes     String[] @default([]) // Which datasets included
+  suburbs       String[] @default([]) // Specific suburbs or "all"
+  exportFormats String[] @default([]) // csv, json, pdf, api
+
+  // Limits
+  apiCallLimit Int? // API calls per month
+  exportLimit  Int? // Export downloads per month
+  suburbLimit  Int? // Number of suburbs
+
+  // Status
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  // Sales
+  totalSales   Int @default(0)
+  totalRevenue Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  purchases data_marketplace_purchases[]
+
+  @@map("data_marketplace_products")
+}
+
+model data_marketplace_purchases {
+  id String @id @default(cuid())
+
+  userId String
+  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   data_marketplace_products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Payment
+  stripePaymentIntentId String? @unique
+  stripeSubscriptionId  String? @unique
+  amount                Int // Amount paid in cents
+  currency              String  @default("AUD")
+  status                String // pending, completed, failed, refunded
+
+  // Access
+  licenseKey String?   @unique // For API access
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+
+  // Usage tracking
+  apiCallsUsed Int       @default(0)
+  exportsUsed  Int       @default(0)
+  lastUsedAt   DateTime?
+
+  // Delivery
+  downloadUrl       String? // For CSV/PDF downloads
+  downloadExpiresAt DateTime?
+
+  purchasedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([productId])
+  @@index([licenseKey])
+  @@map("data_marketplace_purchases")
+}
+
+// ===================================
+// AUDIT & COMPLIANCE
+// ===================================
+
+model audit_logs {
+  id String @id @default(cuid())
+
+  // Who
+  userId    String?
+  user      users?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail String?
+  ipAddress String?
+  userAgent String?
+
+  // What
+  action     String // create_listing, verify_agent, export_data, etc.
+  entityType String // listing, agent, data_export, etc.
+  entityId   String?
+
+  // Details
+  changes  Json? // Before/after values
+  metadata Json? // Additional context
+
+  // Result
+  status       String // success, failed, blocked
+  errorMessage String?
+
+  timestamp DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([action, timestamp])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model conversation {
+  id          String   @id
+  userId      String
+  title       String
+  messages    Json     // Array of message objects
+  messageCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([userId, updatedAt])
+  @@map("conversations")
+}
+
+model aiFeedback {
+  id            String   @id
+  userId        String
+  messageId     String
+  conversationId String?
+  reaction      String   // thumbs_up, thumbs_down
+  feedbackText  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+
+  @@unique([userId, messageId])
+  @@index([userId, createdAt])
+  @@index([conversationId])
+  @@map("ai_feedback")
+}

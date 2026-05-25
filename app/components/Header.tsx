@@ -28,7 +28,6 @@ export default function Header() {
     '/support',
     '/heatmap',
     '/market-trends',
-    '/reports',
     '/risk-analysis',
     '/mortgage-calculator',
     '/admin/support',

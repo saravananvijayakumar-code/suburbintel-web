@@ -84,12 +84,6 @@ const features: Feature[] = [
     description: 'Calculate repayments'
   },
   {
-    name: 'Suburb Reports',
-    href: '/reports',
-    icon: FileText,
-    description: 'Detailed suburb profiles'
-  },
-  {
     name: 'Support',
     href: '/support',
     icon: HelpCircle,

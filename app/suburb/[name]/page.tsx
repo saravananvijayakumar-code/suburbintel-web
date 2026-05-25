@@ -14,6 +14,7 @@ import {
   Calendar,
   Shield,
   Building2,
+  AlertCircle,
 } from 'lucide-react'
 import HistoricalChart from '@/app/components/HistoricalChart'
 import DemographicsPanel from '@/app/components/DemographicsPanel'

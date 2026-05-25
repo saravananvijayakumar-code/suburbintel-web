@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="40" fill="#0d9488"/>
+  <path d="M90 45L45 78.75V135H71.25V106.875H108.75V135H135V78.75L90 45Z" fill="white" stroke="white" stroke-width="2"/>
+  <circle cx="90" cy="84.375" r="11.25" fill="#fbbf24"/>
+  <text x="90" y="162" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">SI</text>
+</svg>

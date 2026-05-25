@@ -16,7 +16,6 @@ const mainNav = [
 
 const moreNav = [
   { name: 'Calculator', href: '/mortgage-calculator', icon: Calculator },
-  { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'About', href: '/about', icon: Star },
 ]
 

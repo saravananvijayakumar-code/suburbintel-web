@@ -17,7 +17,6 @@ export default function Footer() {
     '/support',
     '/heatmap',
     '/market-trends',
-    '/reports',
     '/risk-analysis',
     '/mortgage-calculator',
     '/admin/support',

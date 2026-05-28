@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
 
     suburbPages = suburbs.map((suburb) => ({
-      url: `${baseUrl}/suburb/${encodeURIComponent(suburb.name)}?state=${suburb.state}&postcode=${suburb.postcode}`,
+      url: `${baseUrl}/suburb/${encodeURIComponent(suburb.name.toLowerCase().replace(/\s+/g, '-'))}-${suburb.state.toLowerCase()}-${suburb.postcode}`,
       lastModified: suburb.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,

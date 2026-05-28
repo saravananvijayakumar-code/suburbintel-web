@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://suburbintel-web.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://suburbintel.com'
 
   // Generate suburb URLs from database
   let suburbPages: MetadataRoute.Sitemap = []

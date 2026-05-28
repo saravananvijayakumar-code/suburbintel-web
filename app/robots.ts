@@ -1,31 +1,21 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://suburbintel-web.vercel.app'
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/dashboard/',
-          '/_next/',
-          '/static/',
-          '/*.json$',
-          '/*?*', // Block pages with query parameters to avoid duplicate content
-        ],
+        disallow: ['/api/', '/admin/', '/dashboard/', '/_next/'],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/dashboard/'],
-      },
-      {
-        userAgent: 'Googlebot-Image',
-        allow: '/',
+        disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://suburbintel.com/sitemap.xml',
+    sitemap: `${baseUrl}/sitemap.xml`,
   }
 }
